@@ -9,5 +9,6 @@ jobs:
   hello-cloud:
     runs-on: ubuntu-latest
     steps:
-      - name: Print message
-        run: echo "Hello cloud"
+      - name: Print Hello cloud
+        run: echo "This is Hello cloud from Github Actions"
+        
