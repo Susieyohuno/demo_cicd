@@ -1,14 +1,32 @@
-
-name: Hello Cloud Workflow
+name: Deploy to EC2
 
 on:
-  push:   # Runs when you push to the repository
-  workflow_dispatch:  # Allows manual trigger
+  push:
+    branches:
+      - main   # or your deployment branch
 
 jobs:
-  hello-cloud:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Print Hello cloud
-        run: echo "This is Hello cloud from Github Actions"
-        
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy index.html to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "index.html"
+          target: "/var/www/html/"   # adjust to your web root on EC2
+
+      - name: Restart web server (optional)
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo systemctl restart nginx || sudo systemctl restart httpd
